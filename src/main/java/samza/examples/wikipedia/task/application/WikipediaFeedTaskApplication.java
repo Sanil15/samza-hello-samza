@@ -41,8 +41,8 @@ import samza.examples.wikipedia.task.WikipediaFeedStreamTask;
  */
 public class WikipediaFeedTaskApplication implements TaskApplication {
 
-  private static final List<String> KAFKA_CONSUMER_ZK_CONNECT = ImmutableList.of("localhost:2181");
-  private static final List<String> KAFKA_PRODUCER_BOOTSTRAP_SERVERS = ImmutableList.of("localhost:9092");
+  private static final List<String> KAFKA_CONSUMER_ZK_CONNECT = ImmutableList.of("192.168.122.1:2181");
+  private static final List<String> KAFKA_PRODUCER_BOOTSTRAP_SERVERS = ImmutableList.of("192.168.122.1:9092");
   private static final Map<String, String> KAFKA_DEFAULT_STREAM_CONFIGS = ImmutableMap.of("replication.factor", "1");
 
   @Override

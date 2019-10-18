@@ -21,6 +21,8 @@ base_dir=$(dirname $0)/..
 cd $base_dir
 base_dir=`pwd`
 
-mvn clean package
+mvn clean package -DskipTests -Drat.skip=true
+rm -rf $base_dir/deploy/samza
 mkdir -p $base_dir/deploy/samza
+cp -v ./target/hello-samza-1.2.0-dist.tar.gz /lxc-shared
 tar -xvf $base_dir/target/hello-samza-1.2.0-dist.tar.gz -C $base_dir/deploy/samza

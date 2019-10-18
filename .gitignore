@@ -31,3 +31,6 @@ deploy
 build/
 .gradle/
 state
+yarn-lxc-samza/
+pathing.jar
+manifest.txt
