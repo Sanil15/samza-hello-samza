@@ -21,6 +21,7 @@ package samza.examples.wikipedia.task;
 
 import java.util.Map;
 import java.util.Random;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.samza.context.Context;
 import org.apache.samza.context.TaskContext;
 import org.apache.samza.storage.kv.KeyValueStore;
@@ -31,28 +32,29 @@ import org.apache.samza.task.InitableTask;
 import org.apache.samza.task.MessageCollector;
 import org.apache.samza.task.StreamTask;
 import org.apache.samza.task.TaskCoordinator;
+import samza.examples.wikipedia.model.WikipediaParser;
 import samza.examples.wikipedia.system.WikipediaFeed.WikipediaFeedEvent;
 
 /**
  * This task is very simple. All it does is take messages that it receives, and
  * sends them to a Kafka topic called wikipedia-raw.
  */
-public class WikipediaFeedStreamTask implements StreamTask, InitableTask {
-  private static final SystemStream OUTPUT_STREAM = new SystemStream("kafka", "wikipedia-raw-multi");
-  private static final Random RAND = new Random();
+public class WikipediaFeedConsumer implements StreamTask, InitableTask {
+ private static final Random RAND = new Random();
 
-  //private transient KeyValueStore<String, Integer> store;
+  private transient KeyValueStore<String, Integer> store;
 
   @Override
   public void init(Context context) {
     TaskContext taskContext = context.getTaskContext();
-    //store = (KeyValueStore<String, Integer>) taskContext.getStore("wikipedia-stats");
+    store = (KeyValueStore<String, Integer>) taskContext.getStore("wikipedia-stats-multi");
   }
 
   @Override
   public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) {
-    Map<String, Object> outgoingMap = WikipediaFeedEvent.toMap((WikipediaFeedEvent) envelope.getMessage());
-    //store.put(((WikipediaFeedEvent) envelope.getMessage()).getRawEvent(), 1);
-    collector.send(new OutgoingMessageEnvelope(OUTPUT_STREAM, Integer.toString(RAND.nextInt(10)), null, outgoingMap));
+    Map<String, Object> jsonObject = (Map<String, Object>) envelope.getMessage();
+    WikipediaFeedEvent event = new WikipediaFeedEvent(jsonObject);
+    Map<String, Object> parsedJsonObject = WikipediaParser.parseEvent(event);
+    store.put(RandomStringUtils.randomAlphabetic(10), 1);
   }
 }

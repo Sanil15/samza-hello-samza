@@ -281,6 +281,7 @@ function clone_lxc_instance()
 	local original_container=$1
 	local new_container=$2
 	local base_hostname=`hostname`
+    local fqdn_hostname=`hostname -f`
 
 	echo "Stopping container $original_container"
 	sudo lxc-stop -n $original_container || true
@@ -304,7 +305,7 @@ function clone_lxc_instance()
 
 	# Adding line to /etc/hosts in lxc-instance
 	echo "IP of gateway on base machine is "$gatewayIP
-        LINE="$gatewayIP $base_hostname $base_hostname"
+        LINE="$gatewayIP $base_hostname $fqdn_hostname"
         FILE="$LXC_ROOTFS_DIR/$new_container/rootfs/etc/hosts"
         echo "Modifying LXC-instance's /etc/hosts. Adding $LINE to $FILE"
         sudo grep -qF -- "$LINE" "$FILE" || sudo  echo "$LINE" | sudo tee -a "$FILE"

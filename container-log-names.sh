@@ -1,3 +1,4 @@
+#!/bin/bash
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -15,18 +16,23 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Job
-job.factory.class=org.apache.samza.job.yarn.YarnJobFactory
-job.name=wikipedia-parser
+deploy/yarn/bin/yarn container -list $1 | while read line;
+do
+    container_id=$(echo "$line" | awk '{print $1;}')
+    host=$(echo "$line" | awk '{print $10;}')
+    log_url=$(echo "$line" | awk '{print $12;}')
 
-# YARN package path
-yarn.package.path=file:///lxc-shared/${project.artifactId}-${pom.version}-dist.tar.gz
 
-# TaskApplication class
-app.class=samza.examples.wikipedia.task.application.WikipediaParserTaskApplication
+    if [[ $container_id == "Container-Id" ]]; then
+        continue;
+    fi
 
-# Metrics
-metrics.reporters=snapshot,jmx
-metrics.reporter.snapshot.class=org.apache.samza.metrics.reporter.MetricsSnapshotReporterFactory
-metrics.reporter.snapshot.stream=kafka.metrics
-metrics.reporter.jmx.class=org.apache.samza.metrics.reporter.JmxReporterFactory
+    if [[ $container_id == "Total"  ]]; then
+        continue;
+    fi
+
+    log_name=$(GET $log_url | grep -oh ">samza-container-.*[^startup].log")
+
+    printf "%-30s | %-30s" "$log_name" "$host"
+    echo $n
+done
